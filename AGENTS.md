@@ -15,23 +15,32 @@
 project/
 ├── models/
 │   ├── sources/
-│   │   └── <source_system>/          # e.g. RIDE, MDM, CAP, LID
-│   │       └── src__<source_system>__<table_name>.yml
+│   │   └── <schema_name>/            # e.g. PUBLISH, RAW — confirm with user
+│   │       └── src__<schema_name>__<table_name>.yml
 │   ├── staging/
-│   │   └── <source_system>/
-│   │       ├── stg__<source_system>__<table_name>.sql
+│   │   └── <schema_name>/
+│   │       ├── stg__<schema_name>__<table_name>.sql
 │   │       └── definitions/
-│   │           └── stg__<source_system>__<table_name>.yml
+│   │           └── stg__<schema_name>__<table_name>.yml
 │   ├── intermediate/
 │   │   └── <pipeline_folder>/
-│   │       └── int__<table_name>.sql
+│   │       ├── int__<table_name>.sql
+│   │       └── definitions/
+│   │           └── int__<table_name>.yml
 │   ├── marts/
 │   │   └── <pipeline_folder>/
 │   │       ├── fct__<table_name>.sql
-│   │       └── dim__<table_name>.sql
+│   │       ├── dim__<table_name>.sql
+│   │       └── definitions/
+│   │           ├── fct__<table_name>.yml
+│   │           └── dim__<table_name>.yml
 │   └── publish/
 │       └── <user_defined_folder>/
-│           └── <user_defined_name>.sql
+│           ├── <user_defined_name>.sql
+│           └── definitions/
+│               └── <user_defined_name>.yml
+├── macros/
+│   └── mc__<macro_name>.sql
 ├── seeds/
 │   └── sd__<table_name>.csv
 └── snapshots/
@@ -44,24 +53,24 @@ project/
 
 ### 1. Sources
 
-- **Location:** `models/sources/<source_system>/`
-- **Subfolders:** Named after the source system (e.g. `RIDE`, `MDM`, `CAP`, `LID`)
-- **Schema rule:** Typically consume only from the `PUBLISH` schema of the source system. If reading from multiple schemas, create subfolders per schema name instead of per source system.
+- **Location:** `models/sources/<schema_name>/`
+- **Subfolders:** Named after the schema being consumed (e.g. `PUBLISH`, `RAW`, `LANDING`).
+- **Schema rule:** Default subfolder name is the schema name. If the user does not specify the schema or subfolder name, **always confirm** before creating files.
 - **One file per table** — each source table has its own individual YML file.
 - **Naming convention:** `src__<folder_name>__<table_name>.yml`
 
 **Example:**
 ```
-models/sources/RIDE/src__RIDE__customer.yml
-models/sources/MDM/src__MDM__product.yml
+models/sources/PUBLISH/src__PUBLISH__customer.yml
+models/sources/RAW/src__RAW__raw_orders.yml
 ```
 
 ---
 
 ### 2. Staging
 
-- **Location:** `models/staging/<source_system>/`
-- **Subfolders:** Follow the same pattern as the source YML subfolders.
+- **Location:** `models/staging/<schema_name>/`
+- **Subfolders:** Follow the same schema-based pattern as the source YML subfolders.
 - **SQL model naming:** `stg__<folder_name>__<table_name>.sql`
 - **YML definition naming:** `stg__<folder_name>__<table_name>.yml`
 - **YML location:** Stored inside a `definitions/` subfolder within the staging subfolder.
@@ -70,8 +79,8 @@ models/sources/MDM/src__MDM__product.yml
 
 **Example:**
 ```
-models/staging/RIDE/stg__RIDE__customer.sql
-models/staging/RIDE/definitions/stg__RIDE__customer.yml
+models/staging/PUBLISH/stg__PUBLISH__customer.sql
+models/staging/PUBLISH/definitions/stg__PUBLISH__customer.yml
 ```
 
 ---
@@ -81,12 +90,15 @@ models/staging/RIDE/definitions/stg__RIDE__customer.yml
 - **Location:** `models/intermediate/<pipeline_folder>/`
 - **Subfolders:** Named after the pipeline of the target table.
 - **SQL model naming:** `int__<table_name>.sql`
+- **YML definition naming:** `int__<table_name>.yml`
+- **YML location:** Stored inside a `definitions/` subfolder within the pipeline subfolder.
 - **Materialization:** `table`
 - **⚠️ Cortex Instruction:** If the user does not specify the pipeline folder location, **always ask** before creating any files.
 
 **Example:**
 ```
 models/intermediate/customer_pipeline/int__customer_enriched.sql
+models/intermediate/customer_pipeline/definitions/int__customer_enriched.yml
 ```
 
 ---
@@ -98,6 +110,8 @@ models/intermediate/customer_pipeline/int__customer_enriched.sql
 - **SQL model naming:**
   - Fact tables: `fct__<table_name>.sql`
   - Dimension tables: `dim__<table_name>.sql`
+- **YML definition naming:** `fct__<table_name>.yml` / `dim__<table_name>.yml`
+- **YML location:** Stored inside a `definitions/` subfolder within the pipeline subfolder.
 - **Materialization:** `incremental`
 - **Testing:** At least one `unique` and one `not_null` test must be defined per model.
 - **⚠️ Cortex Instruction:** If the user does not specify the pipeline folder location, **always ask** before creating any files.
@@ -106,6 +120,8 @@ models/intermediate/customer_pipeline/int__customer_enriched.sql
 ```
 models/marts/customer_pipeline/fct__customer_orders.sql
 models/marts/customer_pipeline/dim__customer.sql
+models/marts/customer_pipeline/definitions/fct__customer_orders.yml
+models/marts/customer_pipeline/definitions/dim__customer.yml
 ```
 
 ---
@@ -115,8 +131,16 @@ models/marts/customer_pipeline/dim__customer.sql
 - **Location:** `models/publish/<user_defined_folder>/`
 - **Subfolders:** Defined by the user.
 - **SQL model naming:** Defined by the user.
+- **YML definition naming:** Same name as the SQL model, with `.yml` extension.
+- **YML location:** Stored inside a `definitions/` subfolder within the user-defined subfolder.
 - **Materialization:** `view`
 - **⚠️ Cortex Instruction:** Always ask the user for the folder name and model name before creating any files in this layer.
+
+**Example:**
+```
+models/publish/reporting/monthly_sales.sql
+models/publish/reporting/definitions/monthly_sales.yml
+```
 
 ---
 
@@ -142,6 +166,20 @@ seeds/sd__product_categories.csv
 ```
 snapshots/snp__customer.yml
 snapshots/snp__product.yml
+```
+
+---
+
+### 8. Macros
+
+- **Location:** `macros/`
+- **Naming convention:** `mc__<macro_name>.sql`
+- **⚠️ Cortex Instruction:** The macro name is always provided by the user. Always ask if not specified.
+
+**Example:**
+```
+macros/mc__generate_schema_name.sql
+macros/mc__cents_to_dollars.sql
 ```
 
 ---
@@ -173,7 +211,8 @@ snapshots/snp__product.yml
 1. **Always follow the naming conventions** defined in this document when generating any DBT file.
 2. **Ask before creating** — for `intermediate`, `marts`, and `publish` layers, if the user has not specified a subfolder/pipeline folder, always ask for it before generating files.
 3. **One file per table** — never combine multiple source tables into a single YML file in the sources layer.
-4. **YML definitions in `definitions/` subfolder** — staging YML files must always be placed inside the `definitions/` subfolder, not at the root of the staging subfolder.
+4. **YML definitions in `definitions/` subfolder** — this is a universal rule: whenever a SQL model exists, its corresponding YML definition must be placed in a `definitions/` subfolder relative to the SQL file. This applies to staging, intermediate, marts, and publish layers.
 5. **Apply tests automatically** — when generating staging or marts models, always include at least `unique` and `not_null` tests in the accompanying YML definition file.
-6. **Respect schema rules for sources** — default to `PUBLISH` schema; use schema-based subfolders only when consuming from multiple schemas.
+6. **Respect schema rules for sources** — subfolder name should match the schema name. If the user does not specify the schema or subfolder name, always confirm before creating files.
 7. **Do not rename or alias columns** — do not rename or alias any column names in staging models unless the user explicitly asks for it.
+8. **Macros naming** — all macros must follow the `mc__<macro_name>.sql` convention. The macro name is always provided by the user.

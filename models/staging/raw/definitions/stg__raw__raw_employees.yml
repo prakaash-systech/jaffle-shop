@@ -1,0 +1,9 @@
+models:
+  - name: stg__raw__raw_employees
+    description: Employee data with basic cleaning and transformation applied, one row per employee.
+    columns:
+      - name: id
+        description: The unique key for each employee.
+        data_tests:
+          - not_null
+          - unique

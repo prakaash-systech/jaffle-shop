@@ -2,13 +2,13 @@ with
 
 customers as (
 
-    select * from {{ ref('stg_customers') }}
+    select * from {{ ref('stg__raw__raw_customers') }}
 
 ),
 
 orders as (
 
-    select * from {{ ref('orders') }}
+    select * from {{ ref('fct__orders') }}
 
 ),
 

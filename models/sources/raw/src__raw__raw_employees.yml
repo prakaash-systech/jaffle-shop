@@ -8,3 +8,18 @@ sources:
     tables:
       - name: raw_employees
         description: One record per employee working at a store location
+        columns:
+          - name: ID
+            description: Primary key for employees
+          - name: STORE_ID
+            description: Foreign key to the store where the employee works
+          - name: FIRST_NAME
+            description: Employee's first name
+          - name: LAST_NAME
+            description: Employee's last name
+          - name: ROLE
+            description: Employee's role at the store
+          - name: HIRED_AT
+            description: Date the employee was hired
+          - name: TERMINATED_AT
+            description: Date the employee was terminated, null if still active

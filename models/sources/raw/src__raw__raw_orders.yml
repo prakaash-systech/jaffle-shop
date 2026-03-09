@@ -8,3 +8,18 @@ sources:
       - name: raw_orders
         description: One record per order (consisting of one or more order items)
         loaded_at_field: ordered_at
+        columns:
+          - name: ID
+            description: Primary key for orders
+          - name: CUSTOMER
+            description: Foreign key to the customer who placed the order
+          - name: ORDERED_AT
+            description: Timestamp when the order was placed
+          - name: STORE_ID
+            description: Foreign key to the store where the order was placed
+          - name: SUBTOTAL
+            description: Subtotal amount of the order before tax
+          - name: TAX_PAID
+            description: Tax amount paid on the order
+          - name: ORDER_TOTAL
+            description: Total amount of the order including tax

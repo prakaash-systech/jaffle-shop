@@ -7,3 +7,14 @@ sources:
     tables:
       - name: raw_products
         description: One record per SKU for items sold in stores
+        columns:
+          - name: SKU
+            description: Stock keeping unit identifier, primary key for products
+          - name: NAME
+            description: Product name
+          - name: TYPE
+            description: Product type or category
+          - name: PRICE
+            description: Product price
+          - name: DESCRIPTION
+            description: Product description

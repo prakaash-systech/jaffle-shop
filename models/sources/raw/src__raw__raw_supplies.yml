@@ -7,3 +7,14 @@ sources:
     tables:
       - name: raw_supplies
         description: One record per supply per SKU of items sold in stores
+        columns:
+          - name: ID
+            description: Primary key for supplies
+          - name: NAME
+            description: Supply name
+          - name: COST
+            description: Cost of the supply
+          - name: PERISHABLE
+            description: Whether the supply is perishable
+          - name: SKU
+            description: Stock keeping unit identifier linking to the product

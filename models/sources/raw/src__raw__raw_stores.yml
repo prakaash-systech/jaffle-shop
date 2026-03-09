@@ -7,3 +7,12 @@ sources:
     tables:
       - name: raw_stores
         loaded_at_field: opened_at
+        columns:
+          - name: ID
+            description: Primary key for stores
+          - name: NAME
+            description: Store name
+          - name: OPENED_AT
+            description: Timestamp when the store was opened
+          - name: TAX_RATE
+            description: Tax rate applied at the store

@@ -7,3 +7,10 @@ sources:
     tables:
       - name: raw_items
         description: Items included in an order
+        columns:
+          - name: ID
+            description: Primary key for items
+          - name: ORDER_ID
+            description: Foreign key to the order this item belongs to
+          - name: SKU
+            description: Stock keeping unit identifier for the product

@@ -7,3 +7,8 @@ sources:
     tables:
       - name: raw_customers
         description: One record per person who has purchased one or more items
+        columns:
+          - name: ID
+            description: Primary key for customers
+          - name: NAME
+            description: Customer's full name

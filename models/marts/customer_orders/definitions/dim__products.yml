@@ -4,7 +4,7 @@ semantic_models:
     description: |
       Product dimension table. The grain of the table is one row per product.
     #The name of the dbt model and schema
-    model: ref('products')
+    model: ref('dim__products')
     #Entities. These usually corespond to keys in the table.
     entities:
       - name: product

@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: cortex_code_usecase
+    database: CORTEX_CODE_USECASE
+    schema: raw
+    description: Cortex Code use case data
+    tables:
+      - name: raw_employees
+        description: One record per employee working at a store location
